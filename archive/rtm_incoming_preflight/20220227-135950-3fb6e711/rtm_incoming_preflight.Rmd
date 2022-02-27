@@ -1,0 +1,214 @@
+---
+title: "Pre-flight checks for Incoming Data Report"
+author: "Wes Hinsley"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    fig_width: 7
+    fig_height: 5
+    fig_caption: true
+    highlight: "tango"
+    df_print: "kable"
+---
+
+```{r echo=FALSE}
+
+ knitr::opts_chunk$set(echo = FALSE, fig.path = "figures/", 
+                       fig.ext = "png",
+                       fig.height = 8)
+
+```
+
+
+## Introduction
+
+This document is the latest details about downloading data from various
+places for the COVID-19 real-time modelling, how they get uploaded to the
+Sharepoint, and how to run some basic sanity tests on the data before 
+running the report. Hopefully, the functions in this report will save lots of
+time, partly by making the downloads and uploads more automated, and partly
+by revealing any simple errors earlier in the process, rathre than waiting
+for those to come out when running the final reports.
+
+## Downloads
+
+Below are the details of all the downloads done, along with the times and
+frequencies. Some of these are now automated. Unless otherwise noted, we 
+only need the data for a given day, to run that report. (The exceptions
+are the Welsh LIMS testing, the Welsh sitrep, and the English sitrep,
+where all the previous files are needed to build the full dataset)
+
+
+#### From https://dhexchange.kahootz.com (not automated yet)
+
+
+```{r echo = FALSE, results = 'asis'}
+kable(data.frame(stringsAsFactors = FALSE,
+  
+  URL = c(
+    "[NHS England Sitrep](https://dhexchange.kahootz.com/connect.ti/DHSC_SPIM/view?objectId=20127408)",
+    "[MHLDA Sitrep](https://dhexchange.kahootz.com/connect.ti/DHSC_SPIM/view?objectId=20127408)",
+    "[NHS NI](https://dhexchange.kahootz.com/connect.ti/DHSC_SPIM/view?objectId=20049680)",
+    "[NHS Scotland](https://dhexchange.kahootz.com/connect.ti/DHSC_SPIM/view?objectId=20049648)",
+    "[NHS Wales](https://dhexchange.kahootz.com/connect.ti/DHSC_SPIM/view?objectId=20024080)",
+    "[Wales Testing](https://dhexchange.kahootz.com/connect.ti/DHSC_SPIM/view?objectId=22815792)",
+    "[ONS Deaths Eng/Wales](https://dhexchange.kahootz.com/connect.ti/DHSC_SPIM/view?objectId=19816944)",
+    "[ONS Deaths NI](https://dhexchange.kahootz.com/connect.ti/DHSC_SPIM/view?objectId=20154480)",
+    "[ONS Deaths Scot](https://dhexchange.kahootz.com/connect.ti/DHSC_SPIM/view?objectId=19820784)"
+  ),
+  
+  info = c(
+    "Need every daily sitrep, including weekends. Single file.",
+    "Standalone NHS / ISP files, usually daily. We only strictly need the most recent",
+    "Standalone Sitrep and Export on weekday, just the export on weekends.",
+    "Several standalone files uploaded each day. Positives and Deaths mainly used.",
+    "Three or files per day, including Weekends, although they don't always arrived until Monday. Need every day of sitreps.",
+    "Week-days only, as a ZIP file. Recommend unzipping/recompressing",
+    "Weekly single file, usually Monday. Need all weeks for full data set.",
+    "Weekly single file, usually Monday. Need all weeks for full data set.",
+    "Weekly 3 files, usually Friday. Standalone complete file")))
+```
+
+#### From the PHE mail (or in due course the SFTP server)
+
+```{r echo = FALSE, results = 'asis'}
+kable(data.frame(stringsAsFactors = FALSE,
+  Dataset = c("SARI (CHESS)",
+              "Anonymous Linelist",
+              "Negatives Pillars",
+              "COVID deaths linelist",
+              "Serology"),
+  Info = c("Three files, each week-day",
+           "A single CSV file each week-day, best to compress and save space",
+           "Two large CSV files each week-day, best to compress again",
+           "A single XLSX file each week-day",
+           "Weekly on Thursday or Friday, usually with accompanying PDF")))
+```
+#### Other dashboards and websites
+
+These files can be fetched automatically  with `downloads(path, date)`, 
+where date is, again, in the form `YYYYMMDD`, or if omitted (or null),
+today's date is used.
+
+```{r echo = FALSE, results = 'asis'}
+  
+  kable(data.frame(stringsAsFactors = FALSE,
+  Dataset = c("[PHE dashboard cases](https://coronavirus.data.gov.uk/downloads/csv/coronavirus-cases_latest.csv)",
+              "[PHE Dashboard - Deaths by date](https://coronavirus.data.gov.uk/details/deaths)",
+              "[PHE Dashboard - Deaths by report date](https://coronavirus.data.gov.uk/details/deaths)",
+              "[PHE dashboard MSOA cases](https://coronavirus.data.gov.uk/downloads/msoa_data/MSOAs_latest.csv)",
+              "[Scottish trends](https://www.gov.scot/publications/coronavirus-covid-19-trends-in-daily-data/)",
+              "[Scottish admissions](https://www.opendata.nhs.scot/dataset/covid-19-in-scotland/resource/2dd8534b-0a6f-4744-9253-9565d62f96c2)",
+              "[Sweden data](https://fohm.maps.arcgis.com/sharing/rest/content/items/b5e7488e117749c19881cce45db13f7e/data)",
+              "[Wales RAPID Surveillance](https://public.tableau.com/profile/public.health.wales.health.protection#!/vizhome/RapidCOVID-19virology-Public/Headlinesummary)"),
+  
+  Info = c("4PM or later, daily",
+           "4PM or later, daily",
+           "4PM or later, daily",
+           "4PM or later, daily",
+           "2PM daily",
+           "2PM daily",
+           "2PM daily",
+           "2PM daily")))
+```  
+
+ERRATA - The Wales RAPID Surveillance actually can't be automatically
+downloaded... working on a fix
+
+## Uploads and Updates
+
+If you've downloaded files into, say, `E:/Stuff`, and if you also have a 
+backup folder within that, say, `E:/Stuff/backup`, then, to upload all the
+files recognised from that folder:-
+```{r eval=FALSE}
+  Sys.setenv(SHAREPOINT_PASS="SpudSpudSpud")
+  Sys.setenv(SHAREPOINT_USER="spud") 
+  uploads(path = "E:/Stuff", for_date = "20201107",
+    move_uploaded_to = "E:/Stuff/Backup"))
+```    
+    
+where the args for uploads are:-
+
+```{r echo = FALSE, results = 'asis'}
+  kable(data.frame(stringsAsFactors = FALSE,
+    arg = c("path", "for_date", "move_uploaded_to"),
+    info = c("The path where you've downloaded files.",
+             "Date in the form YYYYMMDD, for which to run the upload. This will be expected to come up in any date-specific filenames given in `incoming_files.csv`. Note that some files are non-date specific, and the date you supply here will be assumed as the date for those files. You can omit (or use NULL) to assume today's date.",
+            "If set  to non NULL, then after data files are uploaded, they will be moved to this folder. Then after the process is done, any files left in `path` will be ones that weren't recognised and you may need to intervene manually to get those in place - or possibly consider updating `incoming_files.csv` and trying again.")))
+```
+
+### The upload function
+
+The upload function both uploads data on to sharepoint, and updates
+the `files.xlsx` meta file. It does this by looking in each row of 
+`incoming_files.csv` for matches in your incoming path, and each row says how
+to update the meta data, and where to put the file.
+
+Note that the regexes are matched from top to bottom, so if you have a file that
+could potentially be matched by multiple regexes (for
+example, the PHE dashboard death files are called dod_data... and data... )
+there is a risk that the "data..." regex might match both files. You'll get an
+"ambiguous file" warning if this happens. To prevent this, make sure the 
+longer regex (eg, the dod_... one, which is less likely to find a match) occurs
+first in the file.
+
+### The `incoming_files.csv` metafile
+
+The columns of `incoming_files.csv` are as follows:-
+
+#### regex
+
+A regular expression string used for matching to existing files. You can use normal regex notation, and also a few other date-specific placeholders. See below for current list in use:-
+  * `:Y` - the four digit year from `for_date`
+  * `:y` - the two digit year from `for_date`
+  * `:M` - the two digit month from `for_date`
+  * `:m` - a three letter capitalised short month-name, for `for_date` (see PHE dashboard)
+  * `:D` - the two digit day of the month from `for_date`
+  * `\\d` - any single digit
+  * `\\w` = any single character\n
+  * `.*` = any number of characters."
+
+#### type
+A non-important string to describe each file being uploaded
+
+#### rootfolder
+
+The sharepoint folder relative to `Data Collection` for this data type; it'll be the place where files.xlsx is. Eg: `UK/PHE Dashboard`
+
+#### datasubfolder
+
+Relative to the rootfolder, to determine where files should be put. This can include date specifiers;  `:Y:M/:D` is common, to match with (eg) `202011/05` - for others `:Y:M` and for some, empty.
+
+#### ftype
+
+This indicates how to update `files.xlsx`. Options:-
+
+* `none`  - files.xlsx does not need updating for this file.
+* `single`  - files.xlsx contains a single line, date and filename (eg, MHLDA, Sweden)
+* `single_unzipped` - as `single` but the incoming file will be compressed first.
+* `2coltype`  - files.xlsx has a `type` field for each row, which we want to match (see fval) after the row is matched, the first two columns will be date and filename. For the Scotland file, the `type` column is called `deaths_ICU`.
+* `2coltype_unzipped` - similar to `2coltype` but the incoming file will be compressed first.
+* `covid_sitrep` - special case for the Covid Sitrep.
+* `ons_engwales` - special case for ONS Deaths for England and Wales
+* `ons_ni` - special case for ONS Deaths for Northern Ireland
+* `ons_scot` - special case for ONS Deaths for Scotland
+* `wales_lims_zip` - special case for the ZIP version of the welsh testing data
+* `wales_lims_csv` - special case for the CSV version of the welsh testing data
+* `wales_lims` - special case for the Welsh testing data (by this time a csv.xz)
+* `wales_sitrep` - special case for the Wales sitrep.
+
+#### fval
+
+If the `ftype` is `2coltype`, and if there are multiple rows in the `files.xlsx`, 
+then `fval` allows row selection be choosing a row where column `type` or `deaths_ICU` is equal to `fval`. `fval` might be `pillar1` or `pillar2` for the `type` column in the `files.xlsx` for negatives_pillars, for example.")))
+
+## Checks
+
+Finally, the `checks(date)` function will test that:
+* Every file in every `files.xlsx` exists with exactly that name.
+* The most recent date for each file download is what we expect it to be - 
+with warnings for weekend where we're not always sure when the data will
+arrive.
+* If `date` is NULL or omitted, then today's date is used for comparison, to see
+if data is out-of-date. You can override this by specifying a date in the form "YYYYMMDD". This is particularly useful if first thing in the morning, you
+want to know which streams were out of date when we ran the update last night.

@@ -1,0 +1,8 @@
+"date","filename","type","Notes","sha256"
+2020-08-12,"202008/12/coronavirus-deaths_latest.csv","deaths","update this with latest file","74c3e906ca35eae13855d0ae343a5b21a652e3c9cc0970210a0553dd5da4eda1"
+2020-12-17,"202012/17/MSOAs_latest.csv","weekly_cases","updated on Thursdays","e2f19387de303060babcf3080848929f025a0a1d8383f71e19d652c745b8200a"
+2022-02-27,"202202/27/data_2022-Feb-27.csv","newdeaths","new death file, starting Aug 17th - date REPORTED","a93c16d925d9972f3fa3ac1ee07375ff528b59a43fa080e0f1f953681875febf"
+2022-02-27,"202202/27/dod_data_2022-Feb-27.csv","newdeathsbydod","new death file, starting Aug 17th - date OF DEATH","fecc7a6f01b05270626630bd5860d7715675855b8e176b5a098c9a17b7e91a73"
+2022-02-27,"202202/27/phe_cases_2022-Feb-27.csv","cases","update this with latest file","f42275286e77dd3d195725ca88624573f44cca6c5ce16dd457b1444581257301"
+2022-02-27,"202202/27/phe_healthcare_20220227.csv","healthcare","updated by preflight","e92e37ddc2ad9aad974e2b3a755ad2d31bbf90728a54b1218ae734106c92ec21"
+2021-01-28,"202101/28/phe_vacc_20210128.csv","vacc","updated by preflight","64f3d3eb3b235153231c9c511de6bc38744a5b05092202346bc7b7d82fe57687"

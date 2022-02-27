@@ -1,0 +1,207 @@
+---
+title: "Clean PHE dashboard"
+author: "Katy Gaythorpe"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+ html_document:
+    fig_width: 7
+    fig_height: 5
+    fig_caption: true
+    highlight: "tango"
+    df_print: "kable"
+---
+
+
+```{r set up }
+
+rtm_read_csv <- function(...) {
+  read.csv(stringsAsFactors = FALSE, ...)
+}
+
+rtm_write_csv <- function(...) {
+  write.csv(row.names = FALSE, ...)
+}
+
+data_frame <- function(...) {
+  data.frame(stringsAsFactors = FALSE, ...)
+}
+
+knitr::opts_chunk$set(echo = FALSE, fig.path = "figures/", 
+                       fig.ext = "png",
+                       fig.height = 8)
+
+## library(orderly)
+## set the working directory to this one then...
+## orderly::orderly_develop_start()
+## orderly::orderly_develop_status()
+## orderly::orderly_develop_clean()
+
+```
+
+### Description
+
+This task pulls in the PHE dashboard data
+
+
+Load and clean the data.
+
+```{r load_and_clean_deaths}
+
+# Use version 1 for the original (12th August or earlier)
+# Use version 2 for 17th August onwards.
+
+version <- 2
+
+if (version == 1) {
+  
+  deaths <- rtm_read_csv(files$filename_clean[files$type == "deaths"])
+  deaths %<>% mutate(dataset = "PHE_dashboard")
+  deaths %<>% janitor::clean_names()
+  deaths %<>% select(area_name, reporting_date, daily_change_in_deaths)
+  deaths %<>% mutate(reporting_date = as.Date(reporting_date))
+  deaths %<>% rename(deaths = daily_change_in_deaths)
+
+} else if (version == 2) {
+  
+  types <- c("newdeaths", "newdeathsbydod")
+  daily_col <- c("newDeaths28DaysByPublishDate", "newDeaths28DaysByDeathDate")
+  cuml_col <- c("cumDeaths28DaysByPublishDate", "cumDeaths28DaysByDeathDate")
+  
+  for (i in 1:2) {
+    d <- rtm_read_csv(files$filename_clean[files$type == types[i]])
+  
+    names(d)[names(d) == 'areaName'] <- "Area.name"
+    names(d)[names(d) == 'areaType'] <- "Area.type"
+    names(d)[names(d) == 'areaCode'] <- "Area.code"
+    names(d)[names(d) == 'date'] <- "Reporting.date"
+    names(d)[names(d) == daily_col[i]] <- "Daily.change.in.deaths"
+    names(d)[names(d) == cuml_col[i]] <- "Cumulative.deaths"
+    d %<>% mutate(dt = "PHE_dashboard")
+    d %<>% janitor::clean_names()
+    d %<>% select(area_name, reporting_date, daily_change_in_deaths)
+    d %<>% mutate(reporting_date = as.Date(reporting_date))
+    d %<>% rename(deaths = daily_change_in_deaths)
+    
+    if (i == 1) {
+      deaths_by_report_date  <- d
+    } else {
+      deaths_by_death_date <- d
+    }
+  }
+}
+
+
+```
+
+```{r save_deaths}
+deaths_by_report_date %T>%
+  saveRDS( "deaths_by_country.rds") %>%
+  rtm_write_csv( "deaths_by_country.csv")
+
+deaths_by_death_date %T>%
+  saveRDS( "deaths_by_country_by_death_date.rds") %>%
+  rtm_write_csv( "deaths_by_country_by_death_date.csv")
+```
+
+
+```{r load_and_clean_cases}
+
+cases <- rtm_read_csv(files$filename_clean[files$type == "cases"])
+
+cases %<>% mutate(dataset = "PHE_dashboard")
+
+cases %<>% janitor::clean_names()
+
+# Apr 30th - switched to non-legacy file, as legacy one has broken.
+# Making variable names compatible with old file...
+#"area_name","area_code","area_type","specimen_date","daily_lab_confirmed_cases","cumulative_lab_confirmed_cases","cumulative_lab_confirmed_cases_rate","dataset"
+
+
+names(cases)[names(cases) == "date"] <- "specimen_date"
+names(cases)[names(cases) == "cum_cases_by_specimen_date"] <- "cumulative_lab_confirmed_cases"
+names(cases)[names(cases) == "cum_cases_by_specimen_date_rate"] <- "cumulative_lab_confirmed_cases_rate"
+names(cases)[names(cases) == "new_cases_by_specimen_date"] <- "daily_lab_confirmed_cases"
+
+
+cases %<>% mutate(specimen_date= as.Date(specimen_date))
+
+
+```
+
+```{r save_cases}
+cases %T>%
+  saveRDS( "cases_by_area.rds") %>%
+  rtm_write_csv( "cases_by_area.csv")
+```
+
+```{r load_and_clean_weekly_cases}
+
+wcases <- rtm_read_csv(files$filename_clean[files$type == "weekly_cases"])
+
+# Lookup corrected region
+
+nhs_lookup <- rtm_read_csv("lookup.tsv", sep = "\t")
+wcases$region <- nhs_lookup$region_name[match(
+  wcases$areaCode, nhs_lookup$msoa_num)]
+
+regions <- sort(unique(wcases$region))
+regions <- regions[!is.na(regions)]
+
+wc_table <- NULL
+all_dates <- sort(unique(wcases$date))
+for (region in regions) {
+  subset <- wcases[wcases$region == region, ]
+  df <- data_frame(region = region)
+  for (d in all_dates) {
+    df[[d]] <- sum(c(0, subset$newCasesBySpecimenDateRollingSum[subset$date == d]), na.rm = TRUE)
+  }
+  wc_table <- rbind(wc_table, df)
+}
+
+
+
+
+
+```
+
+```{r save_weekly_cases}
+wc_table %T>%
+  saveRDS( "weekly_cases_by_region.rds") %>%
+  rtm_write_csv( "weekly_cases_by_region.csv")
+```
+
+```{r healthcare}
+
+hcare <- rtm_read_csv(files$filename_clean[files$type == "healthcare"])
+hcare %<>% mutate(dataset = "PHE_dashboard")
+hcare %<>% janitor::clean_names()
+hcare %<>% mutate(date = as.Date(date))
+
+# Fill in any date gaps
+all_dates <- seq(min(hcare$date), max(hcare$date), by = 1)
+all_areas <- unique(hcare$area_name)
+
+for (area in all_areas) {
+  missing <- all_dates[!all_dates %in% unique(hcare$date[hcare$area_name == area])]
+  if (length(missing) > 0) {
+    extra <- hcare[hcare$area_name == area, ][1, ]
+    hcare <- rbind(hcare, data.frame(
+      area_code = extra$area_code,
+      area_name = extra$area_name,
+      area_type = extra$area_type,
+      date = missing,
+      covid_occupied_mv_beds = NA,
+      hospital_cases = NA,
+      new_admissions = NA,
+      dataset = "PHE_dashboard"
+    ))
+  }
+}
+
+hcare <- hcare[order(hcare$area_name, hcare$date), ]
+
+hcare %T>%
+  saveRDS("phe_healthcare.rds") %>%
+  rtm_write_csv( "phe_healthcare.csv")
+
+```

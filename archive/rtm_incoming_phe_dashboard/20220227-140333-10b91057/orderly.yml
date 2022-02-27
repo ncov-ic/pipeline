@@ -1,0 +1,48 @@
+script: script.R
+
+
+artefacts:
+  - report:
+      description: Loading PHE dashboard
+      filenames:
+        - rtm_incoming_phe_dashboard.html
+  - data:
+      description: Tables of outputs
+      filenames:
+        - deaths_by_country.rds
+        - deaths_by_country.csv
+        - deaths_by_country_by_death_date.rds
+        - deaths_by_country_by_death_date.csv
+        - cases_by_area.rds
+        - cases_by_area.csv
+        - weekly_cases_by_region.rds
+        - weekly_cases_by_region.csv
+        - phe_healthcare.rds
+        - phe_healthcare.csv
+
+  - data:
+      description: Metadata about the files included
+      filenames:
+        - files.csv
+
+packages:
+  - knitr
+  - tidyr
+  - dplyr
+  - readr
+  - janitor
+  - lubridate
+  - magrittr
+  - ggpubr
+  - tidyr
+  - readxl
+  - tools
+
+
+resources:
+  - rtm_incoming_phe_dashboard.Rmd
+  - lookup.tsv
+
+global_resources:
+  R/download.R: rtm_incoming/download_clear.R
+

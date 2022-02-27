@@ -109,7 +109,3 @@ depends:
       deaths_by_country.rds: deaths_by_country_by_death_date.rds
       phe_healthcare.rds: phe_healthcare.rds
 
-  
-      
-requester: UK
-author: Katy, Wes, Rich

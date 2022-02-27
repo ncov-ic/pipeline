@@ -46,5 +46,3 @@ resources:
 global_resources:
   R/download.R: rtm_incoming/download_clear.R
 
-requester: UK
-author: Katy, Rich and Wes

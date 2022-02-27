@@ -20,6 +20,7 @@ packages:
 sources:
   - R/checks.R
   - R/uploads.R
+  - R/downloads.R
 
 resources:
   - rtm_incoming_preflight.Rmd
@@ -28,5 +29,4 @@ resources:
 global_resources:
   R/download.R: rtm_incoming/download_encrypt.R
 
-requester: UK
-author: Wes
+
