@@ -1,0 +1,72 @@
+# You must have a script that does something with the data.  This
+# will be a single string and the filename must exist when orderly is
+# run
+script: script.R
+
+
+parameters:
+  date: ~
+
+artefacts:
+  # - report:
+  #     description: Combining data streams and validating- these relate to all datastreams are included for information only
+  #     filenames:
+  #       - report.html
+  #       - rtm_compare_healthcare.html
+
+  - data:
+      description: Tables of outputs
+      filenames:
+        - uk_rtm.rds
+        - uk_rtm.csv
+        - uk_rtm_long.rds
+
+  - data:
+      description: wide extract for validation
+      filenames:
+        - uk_rtm_wide_extract_for_checking.csv
+
+
+packages:
+  - knitr
+  - tidyr
+  - dplyr
+  - readr
+  - janitor
+  - lubridate
+  - ggpubr
+  - readxl
+  - tools
+  - ggplot2
+  - flextable
+  - plotly
+  - htmltools
+  - crayon
+  - fansi
+  - ggshadow
+
+resources:
+  - rtm_compare_healthcare.Rmd
+  - data-files/variable_meanings.csv
+  - data-files/var_names.csv
+  - data-files/stp_to_region.csv
+  - logo.png
+  - report.Rmd
+
+sources:
+  - R/rename_variable.R
+  - R/checks.R
+  - R/reformat_deaths.R
+
+global_resources:
+  R/ltla_to_stp.R: stp_translate/ltla_to_stp.R  
+
+
+depends:
+   
+  rtm_incoming_phe_dashboard:
+    id: latest
+    use:
+      deaths_by_country.rds: deaths_by_country_by_death_date.rds
+      phe_healthcare.rds: phe_healthcare.rds
+
