@@ -25,46 +25,7 @@ artefacts:
       description: wide extract for validation
       filenames:
         - uk_rtm_wide_extract_for_checking.csv
-        
-  - staticgraph:
-      description: All figures
-      filenames:
-        - figures/regions-1.png
-        - figures/regions-10.png
-        - figures/regions-11.png
-        - figures/regions-12.png
-        - figures/regions-13.png
-        - figures/regions-14.png
-        - figures/regions-15.png
-        - figures/regions-16.png
-        - figures/regions-17.png
-        - figures/regions-18.png
-        - figures/regions-19.png
-        - figures/regions-2.png
-        - figures/regions-20.png
-        - figures/regions-21.png
-        - figures/regions-22.png
-        - figures/regions-23.png
-        - figures/regions-24.png
-        - figures/regions-25.png
-        - figures/regions-26.png
-        - figures/regions-27.png
-        - figures/regions-28.png
-        - figures/regions-29.png
-        - figures/regions-3.png
-        - figures/regions-30.png
-        - figures/regions-31.png
-        - figures/regions-32.png
-        - figures/regions-33.png
-        - figures/regions-34.png
-        - figures/regions-35.png
-        - figures/regions-36.png
-        - figures/regions-4.png
-        - figures/regions-5.png
-        - figures/regions-6.png
-        - figures/regions-7.png
-        - figures/regions-8.png
-        - figures/regions-9.png
+
 
 packages:
   - knitr

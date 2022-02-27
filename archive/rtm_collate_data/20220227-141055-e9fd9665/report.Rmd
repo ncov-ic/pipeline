@@ -1,0 +1,188 @@
+---
+title: "Report"
+author: "Katy"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, out.width = "100%", warning = FALSE)
+options(crayon.enabled = TRUE,
+        dplyr.summarise.inform = FALSE)
+old_hooks <- fansi::set_knit_hooks(knitr::knit_hooks, 
+                                   which = c("output", "message", "error"))
+```
+
+```{r validate}
+param_date <- date
+
+df <- readRDS("uk_rtm_long.rds")
+```
+
+## Checks
+
+```{r sitrep, results='asis'}
+# sitrep
+sitrep <- cyphr::decrypt(readxl::read_xlsx("latest_covidsitrep.xlsx", sheet = "R Data",
+                                           skip = 1),
+                         key)
+
+#sitrep date
+sitrep_date <- max(sitrep$period, na.rm = TRUE)
+
+sitrep_latest <- sitrep %>% filter(date == sitrep_date)
+
+# check england_icu and england_new
+if(sum(sitrep$SIT062_OccupiedCov, na.rm = TRUE) + sum(sitrep$SIT063_OccupiedCov, na.rm = TRUE) == 
+   df %>% filter(region == "England", type == "icu", date == (as.Date(sitrep_date)-1)) %>% pull(count)){
+  
+  message(crayon::make_style("green")("Good news: England_icu matches the sitrep"))
+} else {
+  message(crayon::make_style("red")("Bad news: England_icu does not match the sitrep"))
+}
+
+
+```
+
+```{r sitrep ctd}
+  if(sum(sitrep$SIT008_Total, na.rm = TRUE)==
+     df %>% filter(region == "England", type == "new", date == (as.Date(sitrep_date)-1)) %>% pull(count)){
+    
+    cat(crayon::green("Good news: England_new matches the sitrep"))
+  } else {
+    cat(crayon::red("Bad news: England_new does not match the sitrep"))
+  }
+```
+
+```{r last date}
+
+if(max(df$date) != as.Date(param_date)){
+  cat(crayon::red(paste0("Bad news, the last date does not match input date. Last date is ", max(df$date))))
+} else {
+  cat(crayon::green(paste0("Good news, the last date matches the input date")))
+}
+```
+
+## NA values in death variables
+
+```{r death NA}
+
+df %>% 
+  filter(type == "death2", is.na(count), date > (as.Date(param_date)-14), 
+         region %in% c("England", "Scotland", "Wales", "Northern_Ireland")) %>%
+  group_by(region) %>%
+  summarise(NA_dates = paste(date, collapse = ", ")) %>%
+  rename(Nation = region) %>%
+  flextable::flextable(cwidth = 10) %>%
+  flextable::set_caption(caption = "Table 1: NA counts of deaths in the last 2 weeks for all nations. If a nation does not appear, there are no NA dates in the last two weeks.") 
+  
+```
+
+## Figures
+
+```{r admitted, fig.cap="COVID-19 admission counts by nation"}
+
+df %>%
+    filter(type == "admitted", region %in% c("England", "Scotland", "Wales", "Northern_Ireland")) %>%
+    ggplot()+
+    aes(x = date, y = count, fill = region)+
+    geom_col()+
+    scale_x_date(breaks = "2 months")+
+    theme_bw()+
+    theme(legend.position = "bottom")+
+    ggtitle("Admitted")+
+    scale_fill_viridis_d(option = "turbo")
+```
+
+```{r general, fig.cap="COVID-19 general bed counts by nation"}
+
+df %>%
+    filter(type == "general", region %in% c("England", "Scotland", "Wales", "Northern_Ireland")) %>%
+    ggplot()+
+    aes(x = date, y = count, fill = region)+
+    geom_col()+
+    scale_x_date(breaks = "2 months")+
+    theme_bw()+
+    theme(legend.position = "bottom")+
+    ggtitle("General")+
+    scale_fill_viridis_d(option = "turbo")
+```
+
+```{r death2, fig.cap="Death counts by nation"}
+df %>%
+    filter(type == "death2", region %in% c("England", "Scotland", "Wales", "Northern_Ireland")) %>%
+    ggplot()+
+    aes(x = date, y = count, fill = region)+
+    geom_col()+
+    scale_x_date(breaks = "2 months")+
+    theme_bw()+
+    theme(legend.position = "bottom")+
+    ggtitle("Death 2")+
+    scale_fill_viridis_d(option = "turbo")
+```
+
+```{r delta variant, fig.cap="Cases of delta variant counts by nation (not including England)"}
+
+delt <- unique(df$type)[grepl("delta", unique(df$type))]
+delt <- delt[!grepl("non_delta", delt)]
+
+df %>%
+    filter(type %in% delt, 
+           region %in% c("England", "Scotland", "Wales", "Northern_Ireland")) %>%
+    ggplot()+
+    aes(x = date, y = count, fill = region)+
+    geom_col()+
+    scale_x_date(breaks = "2 months")+
+    theme_bw()+
+    theme(legend.position = "bottom")+
+    ggtitle("Delta variant")+
+    scale_fill_viridis_d(option = "turbo")
+
+```
+
+### Lollipop plots
+
+The following plots show the number of days between the input date (today's date usually) and the last available date in that variable. The long lollipops indicate that that variable has not had much recent data.
+
+```{r lollipop of last dates}
+
+fun_lollipop <- function(df, nat){
+  df %>%
+    dplyr::filter(region== nat,
+           !is.na(count),
+           date > (as.Date(param_date)-14)) %>%
+    group_by(type, region) %>%
+    summarise(days_since_param_date = as.numeric(as.Date(param_date) - max(date, na.rm = TRUE))) %>%
+    
+    ggplot()+
+    aes(x = reorder(type, days_since_param_date), xend = reorder(type, days_since_param_date), 
+        yend = 0,  y = days_since_param_date, colour = days_since_param_date) +
+    geom_segment()+
+    ggshadow::geom_glowpoint(size = 1)+
+    theme_bw()+
+    ggtitle(nat)+
+    theme(axis.text.x = element_text(angle = 90, hjust=1),
+          legend.position = "none")+
+    scale_colour_viridis_c(option = "magma", end = 0.8)+
+    labs(x = "", y = "Days since input parameter date")
+}
+
+```
+
+
+```{r lollipop England, fig.height = 16, fig.cap="Days between input date and last, non-NA, date for each variable in England"}
+fun_lollipop(df, "England")+
+  coord_flip()
+```
+
+```{r lollipop Wales, fig.cap="Days between input date and last, non-NA, date for each variable in Wales"}
+fun_lollipop(df, "Wales")
+```
+
+```{r lollipop Scotland, fig.cap="Days between input date and last, non-NA, date for each variable in Scotland"}
+fun_lollipop(df, "Scotland")
+```
+
+```{r lollipop NI, fig.cap="Days between input date and last, non-NA, date for each variable in NI"}
+fun_lollipop(df, "Northern_Ireland")
+```

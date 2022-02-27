@@ -1,0 +1,33 @@
+Variable,Meaning,Source,Countries
+death1,Deaths from PHE dashboard (assigned to the previous day),PHE dashboard,All
+death2,Deaths from deaths linelist (death within 28 days of test),Respective country death linelists,All 
+death2_long,Deaths from deaths linelist (death > 28 days of test),Respective country death linelists,England (others are just same as death2)
+death3,Deaths from deaths linelist reported by NHSE (death within 28 days of test),Deaths linelist for England,England (others are just same as death2)
+death3_long,Deaths from deaths linelist reported by NHSE (death > 28 days of test),Deaths linelist for England,England (others are just same as death2)
+icu,Number of confirmed COVID-19 patients in HDU/ITU in the previous day,Sitreps,All
+new,Number of inpatients diagnosed with COVID-19 in the previous day,Sitreps,England
+general,Number of confirmed COVID-19 inpatients in beds other than HDU/ITU in the previous day,Sitreps,All
+admitted,Number of people admitted with COVID-19 in the previous day,Sitreps,England
+mhlda,Number of people with confirmed COVID-19 in mental health and local district authorities for the previous day,MHLDA sitrep,England
+ons_death_carehome,Number of deaths on that day in care homes or other institutions,ONS,All
+ons_death_noncarehome,Number of deaths on that day in NOT care homes or other institutions,ONS,All
+phe_admissions,Number of new hospital admissions by region according to PHE dashboard,"PHE Dashboard","England"
+phe_occupied_mv_beds,Number of occupied ventilated beds according to PHE dashboard,"PHE Dashboard","England"
+phe_patients,Number of COVID inpatients by region according to PHE dashboard,"PHE Dashboard","England"
+pillar1_positives,Number of cases by specimen date in pillar 1,"Linelist for England, NI sitrep, Wales LIMS","England, NI, Wales"
+pillar2_positives,Number of cases by specimen date in pillar 2,"Linelist for England, NI sitrep, Wales LIMS","England, NI, Wales"
+pillar2_positives_lft,Number of cases found by LFT by specimen date in pillar 2,"Linelist for England, NI sitrep, Wales LIMS","England, NI, Wales"
+pillar1_negatives,Number of negative tests by specimen date in pillar 1,"Negatives linelist, NI sitrep, Wales LIMS","England, NI, Wales"
+pillar2_negatives,Number of negative tests by specimen date in pillar 2,"Negatives linelist, NI sitrep, Wales LIMS","England, NI, Wales"
+pillar1_positives_over25,Number of cases among over 25-year olds by specimen date in pillar 1,"Linelist for England, NI sitrep, Wales LIMS","England, NI, Wales"
+pillar2_positives_over25,Number of cases among over 25-year olds by specimen date in pillar 2,"Linelist for England, NI sitrep, Wales LIMS","England, NI, Wales"
+pillar2_positives_lft_over25,Number of cases found by LFT among over 25-year olds by specimen date in pillar 2,"Linelist for England, NI sitrep, Wales LIMS","England, NI, Wales"
+pillar1_negatives_over25,Number of negative tests among over 25-year olds by specimen date in pillar 1,"Negatives linelist, Wales LIMS","England, Wales"
+pillar2_negatives_over25,Number of negative tests among over 25-year olds by specimen date in pillar 2,"Negatives linelist, Wales LIMS","England, Wales"
+positives,Number of cases by specimen date in both pillars,"Wales dashboard, Scotland positives","Wales, Scotland"
+negatives,Number of negative tests by specimen date in both pillars,,
+react_positives, Number of positive samples from REACT1,REACT1,England
+react_samples, Number of samples from REACT1,REACT1,England
+mech_vent, Number of confirmed COVID-19 inpatients on mechanical ventilation in previous day, sitreps, England
+non_inv_vent, Number of confirmed COVID-19 inpatients on non-invasive ventilation in previous day, sitreps, England
+all_admissions, Number of new COVID-19 inpatients (new+admitted), sitreps, all
