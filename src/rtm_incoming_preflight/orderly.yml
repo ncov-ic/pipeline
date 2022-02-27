@@ -1,0 +1,32 @@
+script: script.R
+
+artefacts:
+  - report:
+      description: Subset of RTM preflight for PHE dashboard
+      filenames:
+        - rtm_incoming_preflight.html
+
+packages:
+  - knitr
+  - crayon
+  - openxlsx
+  - dplyr
+  - httr
+  - R.utils
+  - stringr
+  - xml2
+  - zip
+
+sources:
+  - R/checks.R
+  - R/uploads.R
+
+resources:
+  - rtm_incoming_preflight.Rmd
+  - incoming_files.csv
+
+global_resources:
+  R/download.R: rtm_incoming/download_encrypt.R
+
+requester: UK
+author: Wes

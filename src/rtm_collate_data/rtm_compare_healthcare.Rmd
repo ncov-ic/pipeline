@@ -1,0 +1,80 @@
+---
+title: "Compare different sources of hospital information"
+author: "Wes Hinsley"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    fig_width: 7
+    fig_height: 5
+    fig_caption: true
+    highlight: "tango"
+    df_print: "kable"
+---
+
+
+```{r set up , include = FALSE}
+ knitr::opts_chunk$set(echo = FALSE, 
+                       message = FALSE,
+                       warning = FALSE,
+                       fig.path = "figures/", 
+                       fig.ext = "png",
+                       fig.height = 12)
+
+options(dplyr.summarise.inform = FALSE) 
+
+orderly_id <- tryCatch(
+  orderly::orderly_run_info()$id,
+  error = function(e) "(develop mode)")
+
+
+output <- readRDS("uk_rtm.rds")
+```
+
+# Introduction
+
+Here we compare sources of healthcare between the private linelist data, and
+the public PHE dashboard data. For admissions, we compare the collate fields 
+*new* with *phe_admissions*. For ICU, we compare the collate fields *ICU* with *phe_occupied_mv_beds*, and for in-patients, we compare *general* with 
+*phe_patients*.
+
+```{r regions, results = 'asis', fig.width=6, fig.height = 4}
+
+plot_var <- function(data, region, field, phe_field, ylab) {
+  data$date <- as.Date(data$date)
+  data <- data[order(data$date), ]
+  if (all(is.na(data[[field]])) & all(is.na(data[[phe_field]]))) {
+    return()
+  }
+  ymin <- min(data[[field]], data[[phe_field]], na.rm = TRUE)
+  ymax <- max(data[[field]], data[[phe_field]], na.rm = TRUE)
+  plot(x = data$date, y = data[[field]], ylim = c(ymin, ymax), type="l", col = "red", xlab="Date", ylab = ylab, main = "Blue: PHE Dashboard.  Red: Sitrep")
+  lines(x = data$date, y = data[[phe_field]], col = "blue")
+
+}
+
+plot_region <- function(data, region) {
+  cat('\n\n## ', region, '\n\n')
+  plot_var(data, region, "new", "phe_admissions", "Admissions")
+  plot_var(data, region, "icu", "phe_occupied_mv_beds", "ICU / MV beds")
+  plot_var(data, region, "general", "phe_patients", "Hospital Patients")
+}
+
+output <- output[, c("date", "region", "new", "phe_admissions",
+                     "icu", "phe_occupied_mv_beds",
+                     "general", "phe_patients")]
+
+regions <- unique(output$region)
+by_region <- split(output, output$region)
+
+for (r in seq_along(regions)) {
+  plot_region(by_region[[r]], regions[r])
+}
+
+```
+
+---
+
+<div align="right"><small>
+id: <code>`r orderly_id`</code>
+</small></div>
+![](logo.png)

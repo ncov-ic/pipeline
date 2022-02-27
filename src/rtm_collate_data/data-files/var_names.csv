@@ -1,0 +1,43 @@
+var_name,nice_name
+admitted,Admitted
+death_chr,"Deaths, carehome, <=28d"
+death_comm,"Deaths, non-carehome, <=28d"
+death1,"Deaths, PHE dashboard"
+death2_long,Deaths
+death2,Deaths <= 28d
+death3_long,"Deaths, NHSE"
+death3,"Deaths, NHSE <= 28d"
+icu_unoccupied,Unoccupied ICU beds
+general_unoccupied,Unoccupied general beds
+icu,ICU wards
+general,Geneal wards
+mhlda,MH and LDA trusts
+ons_death_noncarehome,Deaths ONS carehome
+ons_death_carehome,Deaths ONS carehome
+ons_death_hospital,Deaths ONS hospital
+new,New
+pillar1_negatives,Pillar1 negatives
+pillar2_negatives,Pillar2 negatives
+pillar1_positives,Pillar1 positives
+pillar2_positives,PIllar2 positives
+react_positive,REACT positives
+react_samples,REACT samples
+positives,Positives
+negatives,Negatives
+mech_vent_covid,Mechanical Vent. COVID positive
+non_inv_vent_covid,Non-invasive vent. COVID positive
+all_admission,All admissions
+s_na_over25,No S test result (25+)
+s_positive_over25,S positive (25+)
+s_negative_over25,S negative (25+)
+s_na,No S test result
+s_positive,S positive
+s_negative,S negative
+mech_vent_open,Open Mech. Vent. Beds
+mech_vent_unoccupied,Unoccupied Mech. Vent. Beds
+oxy_open,OXY open
+oxy_unoccupied,OXY unoccupied
+death_0,"Non care home, non-medical deaths <=28 days (0-50)"
+death_55,"Non care home, non-medical deaths <=28 days (55-64)"
+death_65,"Non care home, non-medical deaths <=28 days (65-74)"
+death_75,"Non care home, non-medical deaths <=28 days (75+)"

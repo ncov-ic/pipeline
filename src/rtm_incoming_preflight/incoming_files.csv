@@ -1,0 +1,5 @@
+regex,type,rootfolder,datasubfolder,ftype,fval
+phe_cases_:Y-:m-:D.csv,phe_dash_cases,UK/PHE dashboard,:Y:M/:D,2coltype,cases
+dod_data_:Y-:m-:D.csv,phe_dash_dod,UK/PHE dashboard,:Y:M/:D,2coltype,newdeathsbydod
+data_:Y-:m-:D.csv,phe_dash_deaths,UK/PHE dashboard,:Y:M/:D,2coltype,newdeaths
+phe_healthcare_:Y:M:D.csv,phe_healthcare,UK/PHE dashboard,:Y:M/:D,2coltype,healthcare
