@@ -7,8 +7,8 @@ This repositiory provides a segment of the pipeline detailed in PAPER and inform
 This is an [`orderly`](https://github.com/vimc/orderly) project.  The directories are:
 
 * `src`: create new reports here
-* `archive`: versioed results of running your report
-* `data`: copies of data used in the reports
+* `archive`: versioned results of running your report
+* `draft`: test runs of your report- can be commit to `archive` when finalised
 
 ## Getting started
 
