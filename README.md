@@ -29,3 +29,11 @@ To install our internally released version (which might be ahead of CRAN) via dr
 drat:::add("vimc")
 install.packages("orderly")
 ```
+
+### Running the reports
+
+The reports need to be run in the following order: rtm_incoming_preflight (which pulls the data from the COVID-19 dashboard), rtm_incoming_dashboard (which cleans the downloaded data), and rtm_collate_data (which tidies the data into its final format). To a run a report use the following:
+
+```r
+id <- orderly::orderly_run("rtm_incoming_preflight", root = path)
+```
