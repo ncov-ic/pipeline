@@ -39,4 +39,4 @@ The reports would need to be run in the following order: rtm_incoming_preflight 
 ```r
 id <- orderly::orderly_run("rtm_incoming_preflight", root = path)
 ```
-This will create a folder in the `draft` directory with the name `id`. You can commit this to the `archive` directory using `orderly::orderly_commit(id)`.
+This would create a folder in the `draft` directory with the name `id`. You can commit this to the `archive` directory using `orderly::orderly_commit(id)`. You can see previously run versions in the archive folder.
