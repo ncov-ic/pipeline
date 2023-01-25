@@ -12,7 +12,9 @@ This is an [`orderly`](https://github.com/vimc/orderly) project.  The directorie
 
 ## Getting started
 
-To run reports in this repository you will need to download the R package orderly, see the section below. If you would only like to view the code- this can all be found as separate report folders in the `src` directory. If you would only like to look at the output- this can all be found in separate report folders in the `archive` folder. 
+To run reports similar to those in this repository you will need to download the R package orderly, see the section below. If you would only like to view the code- this can all be found as separate report folders in the `src` directory. If you would only like to look at the output- this can all be found in separate report folders in the `archive` folder. 
+
+Note, the reports here require access to upload and save the data to. If you would like to adapt these reports for your own use, please update the file paths in the `upload` section of the `rtm_incoming_preflight`.
 
 ### Installation
 
@@ -32,7 +34,7 @@ install.packages("orderly")
 
 ### Running the reports
 
-The reports need to be run in the following order: rtm_incoming_preflight (which pulls the data from the COVID-19 dashboard), rtm_incoming_dashboard (which cleans the downloaded data), and rtm_collate_data (which tidies the data into its final format). To a run a report use the following:
+The reports would need to be run in the following order: rtm_incoming_preflight (which pulls the data from the COVID-19 dashboard), rtm_incoming_dashboard (which cleans the downloaded data), and rtm_collate_data (which tidies the data into its final format). To a run a report you would use the following:
 
 ```r
 id <- orderly::orderly_run("rtm_incoming_preflight", root = path)
